@@ -3,7 +3,6 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const log = console.log;
 
-
 var connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -18,7 +17,7 @@ const displayProducts = new Promise(function (resolve, reject) {
     var query = 'SELECT * FROM products';
 
     connection.connect(function (err) {
-        console.log('Welcome to Bamazon\n');
+        console.log('\nWelcome to Bamazon\n');
         if (err) throw err;
 
         console.log('Products Available:')
@@ -47,9 +46,7 @@ function promptID() {
             message: 'Select Item By ID: '
 
         }]).then(function (answers) {
-
             this.id = answers.id;
-            console.log('id selected: ' + this.id);
 
             var query = 'SELECT * FROM products WHERE item_id = ?';
 
@@ -133,7 +130,11 @@ function chargeWithTax(itemId) {
             name: 'choice',
             type: 'confirm',
             message: 'Purchase ' + res[0].product_name + ' for $' + res[0].price + ' plus tax?'
-        }]).then(function (err) {
+        }]).then(function (answers) {
+            if(!answers.choice) {
+                console.log("So you don't want it?! CHICKEN!");
+                process.exit(1);
+            }
             log(chalk.green(res[0].product_name + ' purchased for $' + (res[0].price * 1.047).toFixed(2)) );
             process.exit(1);
         });
