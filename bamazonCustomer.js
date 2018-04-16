@@ -113,7 +113,7 @@ function buyProduct(itemId, quantity) {
             chargeWithTax(itemId);
         }
         else {
-            log(log.redBright('Database did not update. You have not been charged.'))
+            log(log.redBright('Database did not update. You have not been charged.'));
         }
 
     });
