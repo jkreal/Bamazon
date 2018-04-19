@@ -96,7 +96,68 @@ function addQuantity(itemId) {
         }
     });
 
+}
 
+function addItemToProductsPrompt() {
+    inquirer.prompt([{
+        name: 'id',
+        type: 'input',
+        message: 'Give the new product an item id'
+    }, {
+        name: 'name',
+        type: 'input',
+        message: 'Enter product name'
+    }, {
+        name: 'department',
+        type: 'input',
+        message: 'Enter product department'
+    }, {
+        name: 'price',
+        type: 'input',
+        message: 'Enter the retail price for the product'
+    }, {
+        name: 'stock',
+        type: 'input',
+        message: 'Enter amount of stock'
+    }]).then(function (answers) {
+        checkAddItem(answers);
+    });
+}
+
+function checkAddItem(answers) {
+
+    var query = 'SELECT * FROM products';
+    connection.query(query, function (err, res) {
+        if(err) throw err;
+
+        var duplicate = false;
+
+        for (var i = 0; i < res.length; ++i) {
+            if (res[i].item_id === parseInt(answers.id)) {
+                console.log('Duplicate item id! Item not added.');
+                duplicate = true;
+            } 
+        }
+
+        if (!duplicate) {
+            addItemToProducts(answers);
+        }
+
+        startPrompt();
+    });
+}
+
+function addItemToProducts(answers) {
+    var query = 'INSERT INTO products(item_id,product_name,department_name,price,stock_quantity) VALUES(?,?,?,?,?)';
+    var parameters = [parseInt(answers.id), answers.name, answers.department, parseInt(answers.price), parseInt(answers.stock)];
+
+    console.log('Adding ' + answers.name + ' to products');
+    connection.query(query, parameters, function(err, res) {
+        if (err) throw err;
+        if(res[0].affectedRows > 0) {
+            console.log('Item added to products!');
+        }
+    });
 }
 
 function startPrompt() {
@@ -118,6 +179,7 @@ function startPrompt() {
                 addToInventory();
                 break;
             case 'Add New Product':
+                addItemToProductsPrompt();
                 break;
             case 'Exit':
                 process.exit(1);
